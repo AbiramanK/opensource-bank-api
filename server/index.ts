@@ -3,15 +3,30 @@ dotenv.config();
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server";
 import { buildSchema } from "type-graphql";
+
 import { sequelize } from "./dbconfig";
+import { authChecker } from "./../middlewares/AuthMiddleware";
 
 async function startServer() {
   const schema = await buildSchema({
     resolvers: [__dirname + "/../app/**/resolver.{ts,js}"],
+    authChecker,
   });
 
   const server = new ApolloServer({
     schema,
+    context: ({ req }) => {
+      const headers = req?.headers;
+      if (headers?.authorization!) {
+        const token = headers?.authorization!?.split(" ")![1] ?? "";
+        const context = {
+          token,
+        };
+
+        return context;
+      }
+    },
+    persistedQueries: false,
   });
 
   try {
