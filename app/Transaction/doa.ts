@@ -1,6 +1,8 @@
 import { sequelize } from "../../server/dbconfig";
 
 import { QueryTypes } from "sequelize";
+import { TRANSACTION_STATUS_TYPES, TRANSACTION_TYPES } from "../../types";
+import { TransactionModel } from "./model";
 
 export const getBankAccountBalance = async (account_id: number) => {
   const [{ balance }] = (await sequelize.query(
@@ -35,4 +37,24 @@ export const getBankAccountBalance = async (account_id: number) => {
   )) as [{ balance: string }];
 
   return parseInt(balance ?? "0");
+};
+
+export const processTransaction = async (
+  account_id: number,
+  type: TRANSACTION_TYPES,
+  amount: number,
+  status: TRANSACTION_STATUS_TYPES
+): Promise<TransactionModel> => {
+  const transaction = await TransactionModel.create({
+    account_id,
+    type,
+    amount,
+    status,
+  });
+
+  if (!transaction) {
+    throw new Error("Transaction process failed");
+  }
+
+  return transaction;
 };
