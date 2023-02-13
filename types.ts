@@ -4,3 +4,5 @@ export type ACCOUNT_STATUS_TYPES =
   | "active"
   | "suspended"
   | "closed";
+export type TRANSACTION_TYPES = "deposit" | "withdraw";
+export type TRANSACTION_STATUS_TYPES = "pending" | "success" | "cancelled";
