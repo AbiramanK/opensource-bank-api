@@ -5,6 +5,7 @@ import {
   Model,
   PrimaryKey,
   AutoIncrement,
+  DataType,
 } from "sequelize-typescript";
 import { Field, ObjectType } from "type-graphql";
 import { USER_TYPES } from "./../../types";
@@ -61,15 +62,15 @@ export class UserModel extends Model {
   @Field({ nullable: true })
   public declare number_of_accounts?: number;
 
-  @Column
+  @Column({ defaultValue: DataType.NOW })
   @Field({ nullable: false })
   public declare created_at?: Date;
 
-  @Column
+  @Column({ defaultValue: DataType.NOW })
   @Field({ nullable: false })
   public declare updated_at?: Date;
 
-  @Column
+  @Column({ defaultValue: null })
   @Field({ nullable: true })
   public declare deleted_at?: Date;
 }

@@ -7,6 +7,7 @@ import {
   AutoIncrement,
   HasOne,
   ForeignKey,
+  DataType,
 } from "sequelize-typescript";
 import { Field, ObjectType } from "type-graphql";
 import { TRANSACTION_STATUS_TYPES, TRANSACTION_TYPES } from "../../types";
@@ -43,15 +44,15 @@ export class TransactionModel extends Model {
   @Field({ nullable: false })
   public declare status?: TRANSACTION_STATUS_TYPES;
 
-  @Column
+  @Column({ defaultValue: DataType.NOW })
   @Field({ nullable: false })
   public declare created_at?: Date;
 
-  @Column
+  @Column({ defaultValue: DataType.NOW })
   @Field({ nullable: false })
   public declare updated_at?: Date;
 
-  @Column
+  @Column({ defaultValue: null })
   @Field({ nullable: true })
   public declare deleted_at?: Date;
 

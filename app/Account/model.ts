@@ -44,15 +44,15 @@ export class AccountModel extends Model {
   @Field({ nullable: false })
   public declare daily_transaction_limit?: number;
 
-  @Column
+  @Column({ defaultValue: DataType.NOW })
   @Field({ nullable: false })
   public declare created_at?: Date;
 
-  @Column
+  @Column({ defaultValue: DataType.NOW })
   @Field({ nullable: false })
   public declare updated_at?: Date;
 
-  @Column
+  @Column({ defaultValue: null })
   @Field({ nullable: true })
   public declare deleted_at?: Date;
 
