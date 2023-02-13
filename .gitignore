@@ -1,0 +1,8 @@
+# package
+node_modules
+
+# environment
+.env
+
+# Temp
+.bin
