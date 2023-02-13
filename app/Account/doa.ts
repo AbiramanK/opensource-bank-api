@@ -1,5 +1,6 @@
 import { BANK_ACCOUNT_ROUTING_NUMBER } from "../../constants";
 import { generateBankAccountNumber } from "../../utilities";
+import { UserModel } from "../User/model";
 import { AccountModel } from "./model";
 
 export const existingAccounts = async (user_id: number) => {
@@ -42,7 +43,7 @@ export const createBankAccount = async (user_id: number) => {
 
 export const getBankAccount = async (id: number): Promise<AccountModel> => {
   try {
-    const account = await AccountModel.findByPk(id);
+    const account = await AccountModel.findByPk(id, { include: UserModel });
 
     if (!account) {
       throw new Error("Bank account not found");

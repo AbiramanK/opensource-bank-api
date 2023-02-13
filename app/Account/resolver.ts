@@ -6,15 +6,23 @@ import {
   InputType,
   Mutation,
   ObjectType,
+  Query,
   Resolver,
 } from "type-graphql";
 import { AuthContext } from "../../middlewares/AuthMiddleware";
 import { ACCOUNT_STATUS_TYPES } from "../../types";
+import { getBankAccountBalance } from "../Transaction/doa";
 import { updateCustomerBankAccountsCount } from "../User/doa";
 import { activateBankAccount, createBankAccount, getBankAccount } from "./doa";
 
 @InputType()
 class ActivateBankAccountInput {
+  @Field({ nullable: false })
+  account_id: number;
+}
+
+@InputType()
+class GetBankAccountBalanceInput {
   @Field({ nullable: false })
   account_id: number;
 }
@@ -32,6 +40,15 @@ class AccountOutput {
 
   @Field({ nullable: false })
   dailyTransactionLimit: number;
+}
+
+@ObjectType()
+class GetBankAccountBalanceOutput {
+  @Field({ nullable: false })
+  accountId: number;
+
+  @Field({ nullable: false })
+  balance: number;
 }
 
 @Resolver()
@@ -68,5 +85,36 @@ export class AccountResolver {
     const activate: boolean = await activateBankAccount(input?.account_id!);
 
     return activate;
+  }
+
+  @Authorized()
+  @Query(() => [GetBankAccountBalanceOutput])
+  async get_bank_account_balace(
+    @Arg("accounts", (type) => [GetBankAccountBalanceInput])
+    accounts: GetBankAccountBalanceInput[],
+    @Ctx() ctx: AuthContext
+  ) {
+    if (ctx?.user?.type === "customer") {
+      for (let account of accounts) {
+        const customerAccount = await getBankAccount(account?.account_id!);
+
+        if (customerAccount?.user?.id !== ctx?.user?.id) {
+          throw new Error("Bank account does not belong to the user");
+        }
+      }
+    }
+
+    const result = await Promise.all(
+      accounts?.map(
+        async (account: GetBankAccountBalanceInput, index: number) => {
+          return {
+            accountId: account?.account_id!,
+            balance: await getBankAccountBalance(account?.account_id),
+          };
+        }
+      )
+    );
+
+    return result;
   }
 }
