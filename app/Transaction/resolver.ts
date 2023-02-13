@@ -5,12 +5,17 @@ import {
   Field,
   InputType,
   Mutation,
+  Query,
   Resolver,
 } from "type-graphql";
 import { AuthContext } from "../../middlewares/AuthMiddleware";
 import { TRANSACTION_STATUS_TYPES } from "../../types";
 import { isBankAccountBelongsToUser } from "../Account/doa";
-import { getBankAccountBalance, processTransaction } from "./doa";
+import {
+  getBankAccountBalance,
+  getTransactions,
+  processTransaction,
+} from "./doa";
 import { TransactionModel } from "./model";
 
 @InputType()
@@ -69,5 +74,18 @@ export class TransactionResolver {
     }
 
     return transaction;
+  }
+
+  @Authorized("customer")
+  @Query(() => [TransactionModel])
+  async get_transactions(
+    @Arg("accountId") accountId: number,
+    @Ctx() ctx: AuthContext
+  ): Promise<TransactionModel[]> {
+    await isBankAccountBelongsToUser(accountId, ctx?.user?.id!);
+
+    const transactions = await getTransactions(accountId);
+
+    return transactions;
   }
 }
