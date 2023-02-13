@@ -79,3 +79,21 @@ export const activateBankAccount = async (id: number): Promise<boolean> => {
     throw new Error(error?.message);
   }
 };
+
+export const isBankAccountBelongsToUser = async (
+  account_id: number,
+  user_id: number
+): Promise<AccountModel> => {
+  try {
+    const account = await getBankAccount(account_id);
+
+    if (account?.user?.id !== user_id) {
+      throw new Error("Bank account does not belong to the user");
+    }
+
+    return account;
+  } catch (error: any) {
+    console.error("Is bank account belongs to user: ", error?.message);
+    throw new Error(error?.message);
+  }
+};

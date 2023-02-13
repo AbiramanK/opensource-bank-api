@@ -13,7 +13,12 @@ import { AuthContext } from "../../middlewares/AuthMiddleware";
 import { ACCOUNT_STATUS_TYPES } from "../../types";
 import { getBankAccountBalance } from "../Transaction/doa";
 import { updateCustomerBankAccountsCount } from "../User/doa";
-import { activateBankAccount, createBankAccount, getBankAccount } from "./doa";
+import {
+  activateBankAccount,
+  createBankAccount,
+  getBankAccount,
+  isBankAccountBelongsToUser,
+} from "./doa";
 
 @InputType()
 class ActivateBankAccountInput {
@@ -96,11 +101,7 @@ export class AccountResolver {
   ) {
     if (ctx?.user?.type === "customer") {
       for (let account of accounts) {
-        const customerAccount = await getBankAccount(account?.account_id!);
-
-        if (customerAccount?.user?.id !== ctx?.user?.id) {
-          throw new Error("Bank account does not belong to the user");
-        }
+        await isBankAccountBelongsToUser(account?.account_id!, ctx?.user?.id!);
       }
     }
 
