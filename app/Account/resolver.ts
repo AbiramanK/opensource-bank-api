@@ -17,8 +17,10 @@ import {
   activateBankAccount,
   createBankAccount,
   getBankAccount,
+  getBankAccounts,
   isBankAccountBelongsToUser,
 } from "./doa";
+import { AccountModel } from "./model";
 
 @InputType()
 class ActivateBankAccountInput {
@@ -117,5 +119,13 @@ export class AccountResolver {
     );
 
     return result;
+  }
+
+  @Authorized("customer")
+  @Query(() => [AccountModel])
+  async get_bank_accounts(@Ctx() ctx: AuthContext): Promise<AccountModel[]> {
+    const accounts = await getBankAccounts(ctx?.user?.id!);
+
+    return accounts;
   }
 }

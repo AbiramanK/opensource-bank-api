@@ -97,3 +97,20 @@ export const isBankAccountBelongsToUser = async (
     throw new Error(error?.message);
   }
 };
+
+export const getBankAccounts = async (
+  user_id: number
+): Promise<AccountModel[]> => {
+  try {
+    const accounts = await AccountModel.findAll({ where: { user_id } });
+
+    if (accounts?.length === 0) {
+      throw new Error("User does not have any bank accounts");
+    }
+
+    return accounts;
+  } catch (error: any) {
+    console.error("Get customer bank accounts: ", error?.message);
+    throw new Error(error?.message);
+  }
+};
