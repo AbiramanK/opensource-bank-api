@@ -52,3 +52,30 @@ export const createUser = async (
     throw new Error(error?.message);
   }
 };
+
+export const updateCustomerBankAccountsCount = async (
+  id: number,
+  count: number
+): Promise<number> => {
+  try {
+    const result = await UserModel.update(
+      {
+        number_of_accounts: count,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+    if (!!result) {
+      return result?.[0]!;
+    }
+
+    throw new Error("Account update failed");
+  } catch (error: any) {
+    console.error("Update customer accounts count: ", error?.message);
+    throw new Error(error?.message);
+  }
+};
