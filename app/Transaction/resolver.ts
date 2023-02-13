@@ -76,13 +76,15 @@ export class TransactionResolver {
     return transaction;
   }
 
-  @Authorized("customer")
+  @Authorized(["customer", "banker"])
   @Query(() => [TransactionModel])
   async get_transactions(
     @Arg("accountId") accountId: number,
     @Ctx() ctx: AuthContext
   ): Promise<TransactionModel[]> {
-    await isBankAccountBelongsToUser(accountId, ctx?.user?.id!);
+    if (ctx?.user?.type === "customer") {
+      await isBankAccountBelongsToUser(accountId, ctx?.user?.id!);
+    }
 
     const transactions = await getTransactions(accountId);
 
