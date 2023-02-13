@@ -1,6 +1,7 @@
 import { Op, where } from "sequelize";
 
 import { USER_TYPES } from "../../types";
+import { AccountModel } from "../Account/model";
 import { UserModel } from "./model";
 
 export const isUserExist = async (email: string, user_name?: string) => {
@@ -76,6 +77,21 @@ export const updateCustomerBankAccountsCount = async (
     throw new Error("Account update failed");
   } catch (error: any) {
     console.error("Update customer accounts count: ", error?.message);
+    throw new Error(error?.message);
+  }
+};
+
+export const getAllUsersWithBankAccounts = async (): Promise<UserModel[]> => {
+  try {
+    const users = await UserModel.findAll({
+      include: [{ model: AccountModel, as: "accounts" }],
+    });
+
+    console.log("all users: ", users);
+
+    return users;
+  } catch (error: any) {
+    console.error("User", "Resolver", "Get all users", error?.message);
     throw new Error(error?.message);
   }
 };

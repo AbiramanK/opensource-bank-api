@@ -5,10 +5,12 @@ import {
   ObjectType,
   Field,
   Arg,
+  Authorized,
+  Query,
 } from "type-graphql";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { createUser, isUserExist } from "./doa";
+import { createUser, getAllUsersWithBankAccounts, isUserExist } from "./doa";
 import {
   AUTH_TOKEN_EXP,
   AUTH_TOKEN_SECRET,
@@ -16,6 +18,7 @@ import {
 } from "./../../constants";
 import { USER_TYPES } from "../../types";
 import { UserModel } from "./model";
+import { AccountModel } from "../Account/model";
 
 @InputType()
 class RegistrationInput {
@@ -87,6 +90,12 @@ class AuthenticationOutput {
 
   @Field({ nullable: false })
   token: string;
+}
+
+@ObjectType()
+class GetAllUsersWithBankAccounts extends UserModel {
+  @Field(() => [AccountModel], { nullable: false })
+  accounts: [AccountModel];
 }
 
 @Resolver()
@@ -188,5 +197,16 @@ export class UserResolver {
       console.error("Password comapre failed: ", error?.message);
       throw new Error(error?.message);
     }
+  }
+
+  @Authorized("banker")
+  @Query(() => [GetAllUsersWithBankAccounts])
+  async get_all_users_with_bank_accounts(): Promise<
+    GetAllUsersWithBankAccounts[]
+  > {
+    const users = (await getAllUsersWithBankAccounts()) as [
+      GetAllUsersWithBankAccounts
+    ];
+    return users;
   }
 }

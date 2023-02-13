@@ -62,3 +62,9 @@ export class AccountModel extends Model {
 }
 
 sequelize.addModels([AccountModel]);
+
+UserModel.hasMany(AccountModel, {
+  as: "accounts",
+  foreignKey: "user_id",
+  sourceKey: "id",
+});
