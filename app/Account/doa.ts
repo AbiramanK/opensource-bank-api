@@ -39,3 +39,42 @@ export const createBankAccount = async (user_id: number) => {
     throw new Error(error?.message);
   }
 };
+
+export const getBankAccount = async (id: number): Promise<AccountModel> => {
+  try {
+    const account = await AccountModel.findByPk(id);
+
+    if (!account) {
+      throw new Error("Bank account not found");
+    }
+
+    return account;
+  } catch (error: any) {
+    console.error("Get bank account: ", error?.message);
+    throw new Error(error?.message);
+  }
+};
+
+export const activateBankAccount = async (id: number): Promise<boolean> => {
+  try {
+    const [affected_count] = await AccountModel.update(
+      {
+        status: "active",
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+    if (affected_count === 0) {
+      throw new Error("Bank account activation failed");
+    }
+
+    return true;
+  } catch (error: any) {
+    console.error("Activate bank account: ", error?.message);
+    throw new Error(error?.message);
+  }
+};
