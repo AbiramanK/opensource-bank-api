@@ -3,6 +3,8 @@ import { sequelize } from "../../server/dbconfig";
 import { QueryTypes } from "sequelize";
 import { TRANSACTION_STATUS_TYPES, TRANSACTION_TYPES } from "../../types";
 import { TransactionModel } from "./model";
+import { AccountModel } from "../Account/model";
+import { UserModel } from "../User/model";
 
 export const getBankAccountBalance = async (account_id: number) => {
   try {
@@ -80,6 +82,7 @@ export const getTransactions = async (
   try {
     const transactions = await TransactionModel.findAll({
       where: { account_id },
+      include: [{ model: AccountModel, include: [{ model: UserModel }] }],
     });
 
     if (transactions?.length === 0) {
