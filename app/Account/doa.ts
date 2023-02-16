@@ -102,7 +102,10 @@ export const getBankAccounts = async (
   user_id: number
 ): Promise<AccountModel[]> => {
   try {
-    const accounts = await AccountModel.findAll({ where: { user_id } });
+    const accounts = await AccountModel.findAll({
+      where: { user_id },
+      include: [{ model: UserModel }],
+    });
 
     if (accounts?.length === 0) {
       throw new Error("User does not have any bank accounts");

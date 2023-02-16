@@ -13,6 +13,7 @@ import { AuthContext } from "../../middlewares/AuthMiddleware";
 import { ACCOUNT_STATUS_TYPES } from "../../types";
 import { getBankAccountBalance } from "../Transaction/doa";
 import { updateCustomerBankAccountsCount } from "../User/doa";
+import { UserModel } from "../User/model";
 import {
   activateBankAccount,
   createBankAccount,
@@ -47,6 +48,9 @@ class AccountOutput {
 
   @Field({ nullable: false })
   dailyTransactionLimit: number;
+
+  @Field({ nullable: false })
+  user: UserModel;
 }
 
 @ObjectType()
@@ -56,6 +60,21 @@ class GetBankAccountBalanceOutput {
 
   @Field({ nullable: false })
   balance: number;
+}
+
+@ObjectType()
+class GetBankAccountOutput extends AccountOutput {
+  @Field({ nullable: false })
+  userId: number;
+
+  @Field({ nullable: false })
+  balance: number;
+
+  @Field({ nullable: false })
+  createdAt: Date;
+
+  @Field({ nullable: false })
+  updatedAt: Date;
 }
 
 @Resolver()
@@ -75,6 +94,7 @@ export class AccountResolver {
       accountNumber: result?.account_number!,
       status: result?.status!,
       dailyTransactionLimit: result?.daily_transaction_limit!,
+      user: result?.user!,
     };
   }
 
@@ -121,11 +141,39 @@ export class AccountResolver {
     return result;
   }
 
-  @Authorized("customer")
-  @Query(() => [AccountModel])
-  async get_bank_accounts(@Ctx() ctx: AuthContext): Promise<AccountModel[]> {
-    const accounts = await getBankAccounts(ctx?.user?.id!);
+  @Authorized("customer", "banker")
+  @Query(() => [GetBankAccountOutput])
+  async get_bank_accounts(
+    @Ctx() ctx: AuthContext,
+    @Arg("user_id", { nullable: true }) user_id?: number
+  ): Promise<GetBankAccountOutput[]> {
+    var userId = ctx?.user?.id!;
+    if (ctx?.user?.type === "banker") {
+      userId = user_id!;
+    }
+    const accounts = await getBankAccounts(userId);
 
-    return accounts;
+    const accountsWithBalance = await Promise.all(
+      accounts?.map(
+        async (
+          account: AccountModel,
+          index: number
+        ): Promise<GetBankAccountOutput> => {
+          return {
+            userId: account?.user_id!,
+            id: account?.id!,
+            accountNumber: account?.account_number!,
+            status: account?.status!,
+            dailyTransactionLimit: account?.daily_transaction_limit!,
+            createdAt: account?.created_at!,
+            updatedAt: account?.updated_at!,
+            balance: await getBankAccountBalance(account?.id!)!,
+            user: account?.user!,
+          };
+        }
+      )
+    );
+
+    return accountsWithBalance;
   }
 }
