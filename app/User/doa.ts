@@ -87,7 +87,21 @@ export const getAllUsersWithBankAccounts = async (): Promise<UserModel[]> => {
       include: [{ model: AccountModel, as: "accounts" }],
     });
 
-    console.log("all users: ", users);
+    return users;
+  } catch (error: any) {
+    console.error(
+      "User",
+      "Resolver",
+      "Get all users with bank accounts",
+      error?.message
+    );
+    throw new Error(error?.message);
+  }
+};
+
+export const getAllUsers = async (): Promise<UserModel[]> => {
+  try {
+    const users = await UserModel.findAll({});
 
     return users;
   } catch (error: any) {

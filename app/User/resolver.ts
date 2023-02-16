@@ -10,7 +10,12 @@ import {
 } from "type-graphql";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { createUser, getAllUsersWithBankAccounts, isUserExist } from "./doa";
+import {
+  createUser,
+  getAllUsers,
+  getAllUsersWithBankAccounts,
+  isUserExist,
+} from "./doa";
 import {
   AUTH_TOKEN_EXP,
   AUTH_TOKEN_SECRET,
@@ -207,6 +212,13 @@ export class UserResolver {
     const users = (await getAllUsersWithBankAccounts()) as [
       GetAllUsersWithBankAccounts
     ];
+    return users;
+  }
+
+  @Authorized("banker")
+  @Query(() => [UserModel])
+  async get_all_users(): Promise<UserModel[]> {
+    const users = await getAllUsers();
     return users;
   }
 }
