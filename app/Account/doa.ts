@@ -1,4 +1,5 @@
 import { BANK_ACCOUNT_ROUTING_NUMBER } from "../../constants";
+import { ACCOUNT_STATUS_TYPES } from "../../types";
 import { generateBankAccountNumber } from "../../utilities";
 import { UserModel } from "../User/model";
 import { AccountModel } from "./model";
@@ -56,11 +57,14 @@ export const getBankAccount = async (id: number): Promise<AccountModel> => {
   }
 };
 
-export const activateBankAccount = async (id: number): Promise<boolean> => {
+export const updateBankAccountStatus = async (
+  id: number,
+  status: ACCOUNT_STATUS_TYPES
+): Promise<boolean> => {
   try {
     const [affected_count] = await AccountModel.update(
       {
-        status: "active",
+        status,
       },
       {
         where: {
@@ -70,12 +74,12 @@ export const activateBankAccount = async (id: number): Promise<boolean> => {
     );
 
     if (affected_count === 0) {
-      throw new Error("Bank account activation failed");
+      throw new Error("Bank account status update failed");
     }
 
     return true;
   } catch (error: any) {
-    console.error("Activate bank account: ", error?.message);
+    console.error("Account", "DOA", "Update bank account: ", error?.message);
     throw new Error(error?.message);
   }
 };

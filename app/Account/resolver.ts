@@ -15,7 +15,7 @@ import { getBankAccountBalance } from "../Transaction/doa";
 import { updateCustomerBankAccountsCount } from "../User/doa";
 import { UserModel } from "../User/model";
 import {
-  activateBankAccount,
+  updateBankAccountStatus,
   createBankAccount,
   getBankAccount,
   getBankAccounts,
@@ -27,6 +27,9 @@ import { AccountModel } from "./model";
 class ActivateBankAccountInput {
   @Field({ nullable: false })
   account_id: number;
+
+  @Field({ nullable: false })
+  status: ACCOUNT_STATUS_TYPES;
 }
 
 @InputType()
@@ -100,18 +103,27 @@ export class AccountResolver {
 
   @Authorized("banker")
   @Mutation(() => Boolean)
-  async activate_bank_account(
+  async update_bank_account_status(
     @Arg("input") input: ActivateBankAccountInput
   ): Promise<boolean> {
-    const account = await getBankAccount(input?.account_id);
+    const accountId = input?.account_id;
+    const status = input?.status;
 
-    if (account?.status === "active") {
-      throw new Error("Bank account already activated");
+    const account = await getBankAccount(accountId);
+    if (account?.status === status) {
+      throw new Error(`Bank account already in ${status} status`);
     }
 
-    const activate: boolean = await activateBankAccount(input?.account_id!);
+    if (status === "pre-active") {
+      throw new Error(`Bank account status update to ${status} not possible`);
+    }
 
-    return activate;
+    const updateStatus: boolean = await updateBankAccountStatus(
+      accountId!,
+      status!
+    );
+
+    return updateStatus;
   }
 
   @Authorized()
