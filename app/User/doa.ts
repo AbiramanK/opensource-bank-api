@@ -104,7 +104,9 @@ export const getAllUsersWithBankAccounts = async (): Promise<UserModel[]> => {
 
 export const getAllUsers = async (): Promise<UserModel[]> => {
   try {
-    const users = await UserModel.findAll({});
+    const users = await UserModel.findAll({
+      where: { type: "customer" },
+    });
 
     return users;
   } catch (error: any) {
