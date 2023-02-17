@@ -11,7 +11,8 @@
     "migration:new": "ts-node -e 'import {createMigration} from \"./utils\"; createMigration()'",
     "migration:compile": "rimraf ./.bin && tsc -p migrations",
     "db:migrate": "yarn migration:compile && sequelize-cli db:migrate",
-    "db:migrate:undo": "yarn migration:compile && sequelize-cli db:migrate:undo"
+    "db:migrate:undo": "yarn migration:compile && sequelize-cli db:migrate:undo",
+    "deploy": "yarn install && yarn build && cp /etc/secrets/.env ./build && cd build && yarn db:migrate"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
@@ -27,10 +28,14 @@
   },
   "dependencies": {
     "apollo-server": "^3.11.1",
+    "apollo-server-core": "^3.11.1",
+    "apollo-server-express": "^3.11.1",
     "axios": "^1.1.3",
     "bcrypt": "^5.1.0",
     "class-validator": "^0.13.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
+    "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "graphql": "^15.5.0",
     "jsonwebtoken": "^9.0.0",
