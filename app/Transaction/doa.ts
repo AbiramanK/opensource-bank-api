@@ -12,7 +12,7 @@ export const getBankAccountBalance = async (account_id: number) => {
       `SELECT
       (
           SELECT
-              SUM(transaction.amount)
+              IFNULL(SUM(transaction.amount), 0)
           FROM
               transactions as transaction
           WHERE
@@ -22,7 +22,7 @@ export const getBankAccountBalance = async (account_id: number) => {
               AND transaction.deleted_at is :deleted_at
       ) - (
           SELECT
-              SUM(transaction.amount)
+              IFNULL(SUM(transaction.amount), 0)
           FROM
               transactions as transaction
           WHERE
