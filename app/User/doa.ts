@@ -4,7 +4,10 @@ import { USER_TYPES } from "../../types";
 import { AccountModel } from "../Account/model";
 import { UserModel } from "./model";
 
-export const isUserExist = async (email: string, user_name?: string) => {
+export const isUserExist = async (
+  email: string,
+  user_name?: string
+): Promise<UserModel | false> => {
   try {
     const result = await UserModel?.findOne({
       where: { [Op?.or]: [{ email }, { user_name: user_name ?? email }] },

@@ -120,8 +120,25 @@ export class UserResolver {
       mobileNumber,
     } = input;
 
-    if (await isUserExist(email, userName)) {
-      throw new Error("User already exist!");
+    const user: UserModel | false = await isUserExist(email, userName);
+
+    if (user && typeof user === "object") {
+      var isUsernameExist = false;
+      var isEmailExist = false;
+
+      if (user?.user_name === userName) {
+        isUsernameExist = true;
+      }
+
+      if (user?.email === email) {
+        isEmailExist = true;
+      }
+
+      throw new Error(
+        `User already exist with${isUsernameExist ? " username" : ""}${
+          isUsernameExist && isEmailExist ? " and" : ""
+        }${isEmailExist ? " email" : ""}`
+      );
     }
 
     const token: string = jwt.sign({ email: input?.email }, AUTH_TOKEN_SECRET, {
